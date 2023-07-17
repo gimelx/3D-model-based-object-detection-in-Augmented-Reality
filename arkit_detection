@@ -1,0 +1,209 @@
+import UIKit
+import SceneKit
+import ARKit
+
+extension SCNVector3: Equatable {
+    public static func ==(lhs: SCNVector3, rhs: SCNVector3) -> Bool {
+        return lhs.x == rhs.x && lhs.y == rhs.y && lhs.z == rhs.z
+    }
+}
+
+class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
+
+    @IBOutlet var sceneView: ARSCNView!
+    
+    var lastTrackingState: ARCamera.TrackingState?
+    var detectedObject: ARObjectAnchor?
+    var totalFrames: Int = 0
+    var detectedFrames: Int = 0
+    var lastPosition: SCNVector3?
+    var unchangedPositionFrames: Int = 0
+    var lastDetectionStatus: Bool? = nil
+    var isSessionRunning: Bool = true
+    var framesBeforeFirstDetection: Int = 0
+    var isFirstObjectDetected: Bool = false
+    var timeOfFirstDetection: TimeInterval?
+    var sumDetectionTimes: TimeInterval = 0
+    var detectionStartTime: TimeInterval?
+    var sessionStartTime: TimeInterval?
+
+
+    
+    @objc func stopButtonTapped(sender: UIButton) {
+        if isSessionRunning {
+            sceneView.session.pause()
+            sceneView.scene.rootNode.enumerateChildNodes { (node, stop) in
+                node.removeFromParentNode()
+            }
+            print("Total frames: \(totalFrames)")
+            print("Detected frames: \(detectedFrames)")
+            let detectionRatio = Double(detectedFrames) / Double(totalFrames)
+            print("Detection ratio: \(detectionRatio)")
+            sender.setTitle("Restart", for: .normal)
+        } else {
+            // reset the counters and detection status
+            totalFrames = 0
+            detectedFrames = 0
+            lastDetectionStatus = nil
+            unchangedPositionFrames = 0
+            lastPosition = nil
+            detectedObject = nil
+            framesBeforeFirstDetection = 0
+            isFirstObjectDetected = false
+
+            guard let referenceObjects = ARReferenceObject.referenceObjects(inGroupNamed: "AR Resources", bundle: nil) else {
+                fatalError("Missing expected asset catalog resources.")
+            }
+            let configuration = ARWorldTrackingConfiguration()
+            configuration.detectionObjects = referenceObjects
+
+            sceneView.session.run(configuration)
+            sender.setTitle("Stop", for: .normal)
+        }
+        isSessionRunning = !isSessionRunning
+    }
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        sceneView.delegate = self
+        sceneView.session.delegate = self
+        sceneView.showsStatistics = true
+        
+        let scene = SCNScene()
+        
+        sceneView.scene = scene
+        
+        // button to stop recording/reset
+        let button = UIButton(frame: CGRect(x: 20, y: 50, width: 100, height: 50))
+        button.backgroundColor = .blue
+        button.setTitle("Stop", for: .normal)
+        button.addTarget(self, action: #selector(stopButtonTapped), for: .touchUpInside)
+        self.view.addSubview(button)
+    }
+    
+    func renderer(_ renderer: SCNSceneRenderer, didAdd node: SCNNode, for anchor: ARAnchor) {
+        if let objectAnchor = anchor as? ARObjectAnchor {
+            if !isFirstObjectDetected {
+                isFirstObjectDetected = true
+                timeOfFirstDetection = CACurrentMediaTime()
+                print("Time of first detection: \(String(describing: timeOfFirstDetection))")
+                print("Number of frames before first detection: \(framesBeforeFirstDetection)")
+            }
+            
+            detectedObject = objectAnchor
+            let detectedObjectName = objectAnchor.referenceObject.name ?? "Unnamed"
+            print("Detected object: \(detectedObjectName)")
+            
+            // bounding box
+            let referenceObject = objectAnchor.referenceObject
+            let boundingBox = SCNBox(width: CGFloat(referenceObject.extent.x) * 1.1, height: CGFloat(referenceObject.extent.y) * 1.1, length: CGFloat(referenceObject.extent.z) * 1.1, chamferRadius: 0)
+            boundingBox.firstMaterial?.diffuse.contents = UIColor.red
+            boundingBox.firstMaterial?.fillMode = .lines
+            boundingBox.firstMaterial?.isDoubleSided = true
+            let boundingBoxNode = SCNNode(geometry: boundingBox)
+            node.addChildNode(boundingBoxNode)
+            
+            print("Bounding box dimensions: \(boundingBox.width), \(boundingBox.height), \(boundingBox.length)")
+            print("Bounding box position: \(boundingBoxNode.position)")
+            
+            // text
+            let text = SCNText(string: detectedObjectName, extrusionDepth: 0.01)
+            text.firstMaterial?.diffuse.contents = UIColor.white
+            let textNode = SCNNode(geometry: text)
+            textNode.scale = SCNVector3(0.002, 0.002, 0.002)
+            textNode.position = SCNVector3(referenceObject.center.x + referenceObject.extent.x / 2, referenceObject.center.y + referenceObject.extent.y / 2, referenceObject.center.z)
+            node.addChildNode(textNode)
+        }
+    }
+    
+    func renderer(_ renderer: SCNSceneRenderer, updateAtTime time: TimeInterval) {
+        totalFrames += 1
+        
+        if !isFirstObjectDetected {
+            framesBeforeFirstDetection += 1
+        }
+        
+        var currentDetectionStatus: Bool = false
+        if let detectedObject = detectedObject, let node = sceneView.node(for: detectedObject) {
+            detectedFrames += 1
+            currentDetectionStatus = true
+            if detectionStartTime == nil {
+                detectionStartTime = time
+            }
+        } else {
+            if let detectionStartTime = detectionStartTime {
+                sumDetectionTimes += (time - detectionStartTime)
+            }
+            detectionStartTime = nil
+        }
+        
+        if currentDetectionStatus != lastDetectionStatus {
+            if currentDetectionStatus {
+                print("Object is detected at timestamp: \(time) seconds since session started")
+            } else {
+                print("Object is no longer detected at timestamp: \(time) seconds since session started")
+            }
+        }
+        lastDetectionStatus = currentDetectionStatus
+    }
+
+    func session(_ session: ARSession, didUpdate frame: ARFrame) {
+        if frame.camera.trackingState != lastTrackingState {
+            lastTrackingState = frame.camera.trackingState
+            switch frame.camera.trackingState {
+            case .notAvailable:
+                print("Tracking not available")
+            case .limited(let reason):
+                switch reason {
+                case .initializing:
+                    print("Limited tracking: Initializing")
+                case .relocalizing:
+                    print("Limited tracking: Relocalizing")
+                case .excessiveMotion:
+                    print("Limited tracking: Excessive motion")
+                case .insufficientFeatures:
+                    print("Limited tracking: Insufficient features")
+                @unknown default:
+                    print("Limited tracking: Unknown reason")
+                }
+            case .normal:
+                print("Tracking normal")
+            }
+        }
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        
+        sceneView.session.pause()
+
+        let sessionEndTime = CACurrentMediaTime()
+        guard let sessionStartTime = sessionStartTime else {
+            print("Session start time not set")
+            return
+        }
+        let totalSessionTime = sessionEndTime - sessionStartTime
+        
+        // prints
+        print("Total frames: \(totalFrames)")
+        print("Detected frames: \(detectedFrames)")
+        print("Frames to first Detection: \(framesBeforeFirstDetection)")
+        
+        if detectedFrames > 0 {
+            let averageDetectionTime = sumDetectionTimes / Double(detectedFrames)
+            print("Total detection time: \(sumDetectionTimes) seconds")
+            print("Average detection time per frame: \(averageDetectionTime) seconds")
+        }
+        
+        // ratio
+        let detectionRatio = Double(detectedFrames) / Double(totalFrames)
+        print("Detection ratio: \(detectionRatio)")
+
+        // fps
+        let averageFPS = Double(totalFrames) / totalSessionTime
+        print("Average FPS: \(averageFPS)")
+    }
+
+    
+}
