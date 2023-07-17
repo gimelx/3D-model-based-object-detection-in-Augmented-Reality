@@ -1,4 +1,4 @@
-# ARKit-based Application for iOS (Application Name)
+# ARKit-based Application for iOS 
 
 This application is an implementation of 3D model-based object detection using Apple's ARKit. It was developed in Xcode and uses object scans generated from the ARScanning App for object detection.
 
@@ -29,7 +29,7 @@ This application is an implementation of 3D model-based object detection using A
 
 
 
-# Vuforia Engine and Unity Application (Application Name)
+# Vuforia Engine and Unity Application
 
 This application leverages the Vuforia Engine integrated with Unity to create immersive AR experiences. It uses the Model Target feature of Vuforia for 3D object detection.
 
@@ -39,7 +39,7 @@ This application leverages the Vuforia Engine integrated with Unity to create im
 
 ## Requirements
 
-- Unity 
+- Unity version requirement
 - Vuforia Engine version requirement (Set up instructions: [Vuforia Engine in Unity](https://library.vuforia.com/getting-started/getting-started-vuforia-engine-unity))
 - Model Target Generator ([User Guide](https://library.vuforia.com/objects/model-target-generator-user-guide))
 
@@ -53,23 +53,21 @@ This application leverages the Vuforia Engine integrated with Unity to create im
 
 1. Use the Model Target Generator to create your model target and export it to Unity.
 2. In Unity, add the provided controller script to the model target.
-3. According to the script, add several buttons and textfields as shown in the provided image.
-![Alt text](/ui_vuforiatesting(1).jpg)
-5. Set the build settings in Unity:
+3. According to the script, add several buttons and textfields as shown in the image below.
+   
+   ![UI Vuforia](ui_vuforia.jpg)
+   
+4. Set the build settings in Unity:
     - Target platform: Android
     - Minimum API level: 28
     - Scripting backend: IL2CPP
     - API compatibility level: .NET Standard
     - Architecture: ARM64
-6. Connect your Android device, select it as the build destination, then click 'Build and Run' to install the application on your device.
+5. Connect your Android device, select it as the build destination, then click 'Build and Run' to install the application on your device.
 
 ---
 
 
-
-## Contributing
-
-If you wish to contribute, please feel free to fork the repository, make your changes, and submit a pull request.
 
 ## License
 
