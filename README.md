@@ -1,26 +1,33 @@
 # ARKit-based Application for iOS (Application Name)
 
-This application is developed using Apple's ARKit, leveraging its capabilities to implement 3D model-based object detection. The application was developed in Xcode.
+This application is an implementation of 3D model-based object detection using Apple's ARKit. It was developed in Xcode and uses object scans generated from the ARScanning App for object detection.
 
 ## Features
 
-- Briefly describe the main features of your ARKit-based app.
+- 3D model-based object detection using scanned objects from ARScanning app.
 
 ## Requirements
 
 - iOS version requirement
 - Xcode version requirement
-- Any other dependencies or libraries
+- ARScanning app (https://developer.apple.com/documentation/arkit/arkit_in_ios/content_anchors/scanning_and_detecting_3d_objects) for object scanning
 
 ## Installation
 
-Provide a step-by-step guide on how to install and run the project in Xcode.
+1. Clone this repository.
+2. Open Xcode and navigate to the repository location.
+3. Connect your iOS device and select it as the build destination.
+4. Click 'Run' to install the application on your device.
 
 ## Usage
 
-Provide examples and instructions for how to use the application.
+1. Use the ARScanning app to scan the objects you want to detect. 
+2. Store the scan outputs in the resource folder of this application. 
+3. Run the application. It will detect the objects based on the scans and display the name of the scan when the object is detected.
 
 ---
+
+
 
 # Vuforia Engine and Unity Application (Application Name)
 
