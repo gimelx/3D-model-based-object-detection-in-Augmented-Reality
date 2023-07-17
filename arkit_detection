@@ -1,7 +1,11 @@
+//this code out of a code example by Mohammad Azam, an instructor on udemy
+//https://www.udemy.com/course/mastering-arkit-for-ios-using-swift/
+
 import UIKit
 import SceneKit
 import ARKit
 
+// compare two vectors
 extension SCNVector3: Equatable {
     public static func ==(lhs: SCNVector3, rhs: SCNVector3) -> Bool {
         return lhs.x == rhs.x && lhs.y == rhs.y && lhs.z == rhs.z
