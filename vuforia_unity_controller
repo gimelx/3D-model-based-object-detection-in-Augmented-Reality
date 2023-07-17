@@ -1,0 +1,110 @@
+using System;
+using UnityEngine;
+using TMPro;
+using Vuforia;
+using UnityEngine.UI;
+
+public class ModelTargetLogger : MonoBehaviour
+{
+    public TextMeshProUGUI trackingStateTextMeshPro; // Assign this in the Inspector
+    public TextMeshProUGUI totalTimeTextMeshPro; // Assign this in the Inspector
+    public TextMeshProUGUI trackingTimeTextMeshPro; // Assign this in the Inspector
+    public TextMeshProUGUI firstTrackedTimestampTextMeshPro; // Assign this in the Inspector
+    public TextMeshProUGUI fpsTextMeshPro; // Assign this in the Inspector
+    public Button startStopButton; // Assign this in the Inspector
+    public Button resetButton; // Assign this in the Inspector
+
+    private ObserverBehaviour observerBehaviour;
+    private bool isTracking = false;
+    private float totalTime = 0f;
+    private float trackingTime = 0f;
+    private bool isRecording = false;
+    private DateTime firstTrackedTimestamp;
+    private DateTime recordingStartTime;
+    private int frameCount = 0;
+    private float fpsElapsedTime = 0f;
+
+    void Start()
+    {
+        observerBehaviour = GetComponent<ObserverBehaviour>();
+
+        if (observerBehaviour == null)
+        {
+            trackingStateTextMeshPro.text = "ObserverBehaviour component not found on this GameObject.\n";
+        }
+        else
+        {
+            trackingStateTextMeshPro.text = "ObserverBehaviour component found.\n";
+            observerBehaviour.OnTargetStatusChanged += OnTargetStatusChanged;
+        }
+
+        startStopButton.onClick.AddListener(ToggleRecording);
+        resetButton.onClick.AddListener(Reset);
+
+        startStopButton.GetComponentInChildren<TextMeshProUGUI>().text = "Start";
+        resetButton.GetComponentInChildren<TextMeshProUGUI>().text = "Reset";
+    }
+
+    void Update()
+    {
+        if (isRecording)
+        {
+            totalTime += Time.deltaTime;
+            if (isTracking)
+            {
+                trackingTime += Time.deltaTime;
+            }
+        }
+
+        // Calculate FPS
+        frameCount++;
+        fpsElapsedTime += Time.deltaTime;
+        if (fpsElapsedTime >= 1f) // Every second
+        {
+            fpsTextMeshPro.text = "FPS: " + frameCount.ToString();
+            frameCount = 0;
+            fpsElapsedTime = 0f;
+        }
+
+        trackingStateTextMeshPro.text = "Tracking status: " + (isTracking ? "TRACKED" : "NOT TRACKED");
+        totalTimeTextMeshPro.text = "Total time: " + totalTime.ToString();
+        trackingTimeTextMeshPro.text = "Tracking time: " + trackingTime.ToString();
+        firstTrackedTimestampTextMeshPro.text = "First tracked timestamp: " + (firstTrackedTimestamp - recordingStartTime).TotalSeconds.ToString();
+    }
+
+    void OnTargetStatusChanged(ObserverBehaviour observerBehaviour, TargetStatus targetStatus)
+    {
+        bool wasTracking = isTracking;
+        isTracking = targetStatus.Status == Status.TRACKED;
+
+        if (!wasTracking && isTracking && isRecording && firstTrackedTimestamp == default(DateTime))
+        {
+            firstTrackedTimestamp = DateTime.Now;
+        }
+    }
+
+    void ToggleRecording()
+    {
+        isRecording = !isRecording;
+        if (isRecording)
+        {
+            recordingStartTime = DateTime.Now;
+        }
+        startStopButton.GetComponentInChildren<TextMeshProUGUI>().text = isRecording ? "Stop" : "Start";
+    }
+
+    void Reset()
+    {
+        isTracking = false;
+        totalTime = 0f;
+        trackingTime = 0f;
+        isRecording = false;
+        firstTrackedTimestamp = default(DateTime);
+        recordingStartTime = default(DateTime);
+        frameCount = 0;
+        fpsElapsedTime = 0f;
+
+        startStopButton.GetComponentInChildren<TextMeshProUGUI>().text = "Start";
+    }
+
+}
