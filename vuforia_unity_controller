@@ -6,13 +6,14 @@ using UnityEngine.UI;
 
 public class ModelTargetLogger : MonoBehaviour
 {
-    public TextMeshProUGUI trackingStateTextMeshPro; // Assign this in the Inspector
-    public TextMeshProUGUI totalTimeTextMeshPro; // Assign this in the Inspector
-    public TextMeshProUGUI trackingTimeTextMeshPro; // Assign this in the Inspector
-    public TextMeshProUGUI firstTrackedTimestampTextMeshPro; // Assign this in the Inspector
-    public TextMeshProUGUI fpsTextMeshPro; // Assign this in the Inspector
-    public Button startStopButton; // Assign this in the Inspector
-    public Button resetButton; // Assign this in the Inspector
+    // assign this in the Inspector 
+    public TextMeshProUGUI trackingStateTextMeshPro; 
+    public TextMeshProUGUI totalTimeTextMeshPro;
+    public TextMeshProUGUI trackingTimeTextMeshPro;
+    public TextMeshProUGUI firstTrackedTimestampTextMeshPro; 
+    public TextMeshProUGUI fpsTextMeshPro; 
+    public Button startStopButton; 
+    public Button resetButton; 
 
     private ObserverBehaviour observerBehaviour;
     private bool isTracking = false;
@@ -56,7 +57,7 @@ public class ModelTargetLogger : MonoBehaviour
             }
         }
 
-        // Calculate FPS
+        // fps
         frameCount++;
         fpsElapsedTime += Time.deltaTime;
         if (fpsElapsedTime >= 1f) // Every second
@@ -66,6 +67,7 @@ public class ModelTargetLogger : MonoBehaviour
             fpsElapsedTime = 0f;
         }
 
+        //tracking state text fields
         trackingStateTextMeshPro.text = "Tracking status: " + (isTracking ? "TRACKED" : "NOT TRACKED");
         totalTimeTextMeshPro.text = "Total time: " + totalTime.ToString();
         trackingTimeTextMeshPro.text = "Tracking time: " + trackingTime.ToString();
