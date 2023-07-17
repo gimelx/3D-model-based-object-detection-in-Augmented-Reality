@@ -54,13 +54,14 @@ This application leverages the Vuforia Engine integrated with Unity to create im
 1. Use the Model Target Generator to create your model target and export it to Unity.
 2. In Unity, add the provided controller script to the model target.
 3. According to the script, add several buttons and textfields as shown in the provided image.
-4. Set the build settings in Unity:
+![Alt text](/ui_vuforiatestin.jpg)
+5. Set the build settings in Unity:
     - Target platform: Android
     - Minimum API level: 28
     - Scripting backend: IL2CPP
     - API compatibility level: .NET Standard
     - Architecture: ARM64
-5. Connect your Android device, select it as the build destination, then click 'Build and Run' to install the application on your device.
+6. Connect your Android device, select it as the build destination, then click 'Build and Run' to install the application on your device.
 
 ---
 
