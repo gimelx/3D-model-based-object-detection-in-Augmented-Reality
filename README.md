@@ -71,11 +71,7 @@ This application leverages the Vuforia Engine integrated with Unity to create im
 
 ## License
 
-Provide information about your license.
+MIT
 
-## Contact
 
-Your Name – Your Email – Your Twitter handle, etc.
-
-Please feel free to leave any comments or issues on the GitHub page.
 
