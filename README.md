@@ -1,31 +1,33 @@
-# ARKit-based Application for iOS 
-
-This application is an implementation of 3D model-based object detection using Apple's ARKit. It was developed in Xcode and uses object scans generated from the ARScanning App for object detection.
+# ARKit Application
+This application uses Apple's ARKit for 3D object detection in augmented reality.
 
 ## Features
 
-- 3D model-based object detection using scanned objects from ARScanning app.
+- 3D object detection using ARKit's ARObjectScanningConfiguration.
 
 ## Requirements
 
-- iOS
-- Xcode
-- ARScanning app (https://developer.apple.com/documentation/arkit/arkit_in_ios/content_anchors/scanning_and_detecting_3d_objects) for object scanning
+- iOS device
+- Xcode 
+- ARKit
 
 ## Installation
 
-1. Clone this repository.
-2. Open Xcode and navigate to the repository location.
-3. Connect your iOS device and select it as the build destination.
-4. Click 'Run' to install the application on your device.
+1. Install the ARScanning application from [Apple's Developer Documentation](https://developer.apple.com/documentation/arkit/arkit_in_ios/content_anchors/scanning_and_detecting_3d_objects). This application is necessary to scan your target objects and prepare them for detection in ARKit.
+2. Clone the arkit_detection file
+3. Open it with xcode and add your .arobject into the ressources folder
 
 ## Usage
 
-1. Use the ARScanning app to scan the objects you want to detect. 
-2. Store the scan outputs in the resource folder of this application. 
-3. Run the application. It will detect the objects based on the scans and display the name of the scan when the object is detected.
+1. Scan your target object in the real-world environment where it will be detected. It is important to scan the object in the same environment, as variations in lighting and surroundings can affect the detection accuracy.
+2. Load the resulting ARObject file into the Resources folder of the ARKit app in Xcode. The name of the scan will be displayed in the detection phase.
+3. After loading your scans into the ARKit app, you can run the app on your device to begin detecting your objects.
+
+Please note that the initial setup requires the installation of the ARScanning app to prepare your target objects for detection.
 
 ---
+
+
 
 
 
